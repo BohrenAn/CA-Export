@@ -65,7 +65,11 @@ If ($Null -eq $MgContext)
 	Select-MgProfile -Name "beta"
 	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
 } else {
-	Write-host "Connected: MgGraph"
+	Write-host "Disconnect-MgGraph"
+	Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
+	Write-host "Connect-MgGraph"
+	Select-MgProfile -Name "beta"
+	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
 }
   
 #Collect CA Policy
