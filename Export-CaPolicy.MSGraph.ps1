@@ -26,6 +26,12 @@
 	- Output is now devided into Conditions, SessionControls, GrantControls
 	- Code Cleanup and changed from Spaces to Tabs
 
+	Andres Bohren
+	@andresbohren
+	15.02.2023 Fixed:
+	- Output is now devided into Users, Cloud Apps or Actions, Conditions, GrantControls, SessionControls (like in CA Portal)
+	- Minor rearrangement of Rows
+
 #>
 [CmdletBinding()]
 param (
@@ -120,34 +126,41 @@ foreach( $Policy in $CAPolicy)
 	$devFilters = $null
 	$devFilters = $Policy.Conditions.Devices.DeviceFilter.Rule
 
-	$CAExport += New-Object PSObject -Property @{ 
-		Conditions = "";
+	$CAExport += New-Object PSObject -Property @{
+		### Users ###
+		Users = ""
 		Name = $Policy.DisplayName;
 		Status = $Policy.State;
 		UsersInclude = ($IncludeUG -join ", `r`n");
 		UsersExclude = ($ExcludeUG -join ", `r`n");
+		### Cloud apps or actions ###
 		'Cloud apps or actions' ="";
 		ApplicationsIncluded = ($Policy.Conditions.Applications.IncludeApplications -join ", `r`n");
 		ApplicationsExcluded = ($Policy.Conditions.Applications.ExcludeApplications -join ", `r`n");
 		userActions = ($Policy.Conditions.Applications.IncludeUserActions -join ", `r`n");
 		AuthContext = ($Policy.Conditions.Applications.IncludeAuthenticationContextClassReferences -join ", `r`n");
+		### Conditions ###
+		Conditions = "";
 		UserRisk = ($Policy.Conditions.UserRiskLevels -join ", `r`n");
-		SignInRisk = ($Policy.Conditions.SignInRiskLevels -join ", `r`n");
-		# Platforms = $Policy.Conditions.Platforms;
+		SignInRisk = ($Policy.Conditions.SignInRiskLevels -join ", `r`n");		
 		PlatformsInclude =  ($InclPlat -join ", `r`n");
 		PlatformsExclude =  ($ExclPlat -join ", `r`n");
-		# Locations = $Policy.Conditions.Locations;
 		LocationsIncluded = ($InclLocation -join ", `r`n");
 		LocationsExcluded = ($ExclLocation -join ", `r`n");
 		ClientApps = ($Policy.Conditions.ClientAppTypes -join ", `r`n");
-		# Devices = $Policy.Conditions.Devices;
 		DevicesIncluded = ($InclDev -join ", `r`n");
 		DevicesExcluded = ($ExclDev -join ", `r`n");
 		DeviceFilters =($devFilters -join ", `r`n");
 		
+		### Grant Controls ###
+		GrantControls = "";
+		BuiltInControls = $($Policy.GrantControls.BuiltInControls)
+		TermsOfUse = $($Policy.GrantControls.TermsOfUse)
+		CustomControls =  $($Policy.GrantControls.CustomAuthenticationFactors)
+		GrantOperator = $Policy.GrantControls.Operator
+
 		### Session Controls ###
 		SessionControls = ""
-		#Session = $Policy.SessionControls
 		SessionControlsAdditionalProperties = $Policy.SessionControls.AdditionalProperties
 		ApplicationEnforcedRestrictionsIsEnabled =  $Policy.SessionControls.ApplicationEnforcedRestrictions.IsEnabled
 		ApplicationEnforcedRestrictionsAdditionalProperties = $Policy.SessionControls.ApplicationEnforcedRestrictions.AdditionalProperties
@@ -165,12 +178,7 @@ foreach( $Policy in $CAPolicy)
 		SignInFrequencyValue = $Policy.SessionControls.SignInFrequency.Value
 		SignInFrequencyAdditionalProperties = $Policy.SessionControls.SignInFrequency.AdditionalProperties
 
-		### Grant Controls ###
-		GrantControls = "";
-		BuiltInControls = $($Policy.GrantControls.BuiltInControls)
-		TermsOfUse = $($Policy.GrantControls.TermsOfUse)
-		CustomControls =  $($Policy.GrantControls.CustomAuthenticationFactors)
-		GrantOperator = $Policy.GrantControls.Operator
+
 	}
 }
 
@@ -246,14 +254,15 @@ $Rows| ForEach-Object{
 }
 
 #Column Sorting Order
-$sort = "Name","Status","Conditions","UsersInclude","UsersExclude","Cloud apps or actions", "ApplicationsIncluded","ApplicationsExcluded",`
-		"userActions","AuthContext", "UserRisk","SignInRisk","PlatformsInclude","PlatformsExclude","ClientApps", "LocationsIncluded",`
-		"LocationsExcluded","Devices","DevicesIncluded","DevicesExcluded","DeviceFilters",`
+$sort = "Name","Status","Users","UsersInclude","UsersExclude","Cloud apps or actions","ApplicationsIncluded","ApplicationsExcluded",`
+		"userActions","AuthContext","Conditions","UserRisk","SignInRisk","PlatformsInclude","PlatformsExclude","LocationsIncluded",`
+		"LocationsExcluded","ClientApps","Devices","DevicesIncluded","DevicesExcluded","DeviceFilters",`
+		"GrantControls", "BuiltInControls", "TermsOfUse", "CustomControls", "GrantOperator",`
 		"SessionControls","SessionControlsAdditionalProperties","ApplicationEnforcedRestrictionsIsEnabled","ApplicationEnforcedRestrictionsAdditionalProperties",`
-		"CloudAppSecurityType", "CloudAppSecurityIsEnabled","CloudAppSecurityAdditionalProperties","DisableResilienceDefaults","PersistentBrowserIsEnabled",`
+		"CloudAppSecurityType","CloudAppSecurityIsEnabled","CloudAppSecurityAdditionalProperties","DisableResilienceDefaults","PersistentBrowserIsEnabled",`
 		"PersistentBrowserMode","PersistentBrowserAdditionalProperties","SignInFrequencyAuthenticationType","SignInFrequencyInterval","SignInFrequencyIsEnabled",`
-		"SignInFrequencyType","SignInFrequencyValue","SignInFrequencyAdditionalProperties",`
-		"GrantControls", "BuiltInControls", "TermsOfUse", "CustomControls", "GrantOperator"
+		"SignInFrequencyType","SignInFrequencyValue","SignInFrequencyAdditionalProperties"
+		
 
 #Debug
 #$pivot | Sort-Object $sort | Out-GridView
@@ -323,7 +332,7 @@ $html = "<html><head><base href='https://docs.microsoft.com/' target='_blank'>
 	tbody tr:nth-of-type(even) {
 		background-color: #f3f3f3;
 	}
-	tbody tr:nth-of-type(4), tbody tr:nth-of-type(22), tbody tr:nth-of-type(39){
+	tbody tr:nth-of-type(4), tbody tr:nth-of-type(7), body tr:nth-of-type(12), tbody tr:nth-of-type(23), tbody tr:nth-of-type(28){
 		background-color: #36c;
 		text-aling:left !important
 	}
