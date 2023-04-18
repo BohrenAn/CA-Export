@@ -32,6 +32,13 @@
 	- Output is now devided into Users, Cloud Apps or Actions, Conditions, GrantControls, SessionControls (like in CA Portal)
 	- Minor rearrangement of Rows
 
+	Andres Bohren
+	@andresbohren
+	18.04.2023 Fixed:
+	- Fixed Script Parameter "PolicyID" -ConditionalAccessPolicyId
+	- Addet PolicyID to HTML Output
+	
+
 #>
 [CmdletBinding()]
 param (
@@ -76,7 +83,7 @@ If ($Null -eq $MgContext)
 Write-host "Exporting: CA Policy"
 if($PolicyID)
 {
-	$CAPolicy = Get-MgIdentityConditionalAccessPolicy -PolicyID $PolicyID
+	$CAPolicy = Get-MgIdentityConditionalAccessPolicy -ConditionalAccessPolicyId $PolicyID
 }
 else
 {
@@ -134,6 +141,7 @@ foreach( $Policy in $CAPolicy)
 		### Users ###
 		Users = ""
 		Name = $Policy.DisplayName;
+		PolicyID = $Policy.ID
 		Status = $Policy.State;
 		UsersInclude = ($IncludeUG -join ", `r`n");
 		UsersExclude = ($ExcludeUG -join ", `r`n");
@@ -220,7 +228,7 @@ foreach( $Policy in $CAPolicy)
 		$disp =$_.DisplayName
 		$cajson = $cajson -replace "$obj", "$disp"
 	}
-	$CAExport = $cajson |ConvertFrom-Json
+	$CAExport = $cajson | ConvertFrom-Json
 
 	#Export Setup
 	Write-host "Pivoting: CA to Export Format"
@@ -258,7 +266,7 @@ $Rows| ForEach-Object{
 }
 
 #Column Sorting Order
-$sort = "Name","Status","Users","UsersInclude","UsersExclude","Cloud apps or actions","ApplicationsIncluded","ApplicationsExcluded",`
+$sort = "Name","PolicyID","Status","Users","UsersInclude","UsersExclude","Cloud apps or actions","ApplicationsIncluded","ApplicationsExcluded",`
 		"userActions","AuthContext","Conditions","UserRisk","SignInRisk","PlatformsInclude","PlatformsExclude","LocationsIncluded",`
 		"LocationsExcluded","ClientApps","Devices","DevicesIncluded","DevicesExcluded","DeviceFilters",`
 		"GrantControls", "BuiltInControls", "TermsOfUse", "CustomControls", "GrantOperator",`
