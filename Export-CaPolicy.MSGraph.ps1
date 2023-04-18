@@ -1,8 +1,12 @@
-#Conditional Access Export Utility
+###############################################################################
+# Conditional Access Export Utility with Microsoft Graph PowerShell (MgGraph)
+# Based on https://github.com/dougsbaker/CA-Export
+# Developed my own "flavor" - Output is structured more like the AzureAD Portal
+###############################################################################
 
 <#
 .SYNOPSIS
-	Conditional Access Export Utility
+	Conditional Access Export Utility with Microsoft Graph PowerShell (MgGraph)
 .DESCRIPTION
 	Exports CA Policy to HTML Format for auditing/historical purposes. 
 
