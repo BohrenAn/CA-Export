@@ -32,6 +32,11 @@
 	- Output is now devided into Users, Cloud Apps or Actions, Conditions, GrantControls, SessionControls (like in CA Portal)
 	- Minor rearrangement of Rows
 
+	Andres Bohren
+	@andresbohren
+	03.05.2023 Fixed:
+	- Changed UPN to Displaynames for AD Objects because Groups don't have a UPN
+
 #>
 [CmdletBinding()]
 param (
@@ -62,14 +67,14 @@ $MgContext = Get-MgContext
 If ($Null -eq $MgContext)
 {
 	Write-host "Connect-MgGraph"
-	Select-MgProfile -Name "beta"
 	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
+	Select-MgProfile -Name "beta"
 } else {
 	Write-host "Disconnect-MgGraph"
 	Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 	Write-host "Connect-MgGraph"
-	Select-MgProfile -Name "beta"
 	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
+	Select-MgProfile -Name "beta"
 }
   
 #Collect CA Policy
@@ -100,19 +105,22 @@ foreach( $Policy in $CAPolicy)
 	### Conditions ###
 	$IncludeUG = $null
 	$IncludeUG = $Policy.Conditions.Users.IncludeUsers
-	$IncludeUG +=$Policy.Conditions.Users.IncludeGroups
-	$IncludeUG +=$Policy.Conditions.Users.IncludeRoles
+	$IncludeUG += $Policy.Conditions.Users.IncludeGroups
+	$IncludeUG += $Policy.Conditions.Users.IncludeRoles
 
 	$ExcludeUG = $null
 	$ExcludeUG = $Policy.Conditions.Users.ExcludeUsers
-	$ExcludeUG +=$Policy.Conditions.Users.ExcludeGroups
-	$ExcludeUG +=$Policy.Conditions.Users.ExcludeRoles
+	$ExcludeUG += $Policy.Conditions.Users.ExcludeGroups
+	$ExcludeUG += $Policy.Conditions.Users.ExcludeRoles
+
+	#Debug
+	Write-Host "DEBUG ExcludeUG: $ExcludeUG" -ForegroundColor Yellow
 	
 	$Apps += $Policy.Conditions.Applications.IncludeApplications
 	$Apps += $Policy.Conditions.Applications.ExcludeApplications
 	
-	$AdUsers +=$ExcludeUG
-	$AdUsers +=$IncludeUG
+	$AdUsers += $ExcludeUG
+	$AdUsers += $IncludeUG
 	
 	$InclLocation = $Null
 	$ExclLocation = $Null 
@@ -136,7 +144,7 @@ foreach( $Policy in $CAPolicy)
 		Name = $Policy.DisplayName;
 		Status = $Policy.State;
 		UsersInclude = ($IncludeUG -join ", `r`n");
-		UsersExclude = ($ExcludeUG -join ", `r`n");
+		UsersExclude = ($ExcludeUG -join ", `r`n");		
 		### Cloud apps or actions ###
 		'Cloud apps or actions' ="";
 		ApplicationsIncluded = ($Policy.Conditions.Applications.IncludeApplications -join ", `r`n");
@@ -189,14 +197,14 @@ foreach( $Policy in $CAPolicy)
 	#Swith user/group Guid to display names
 	Write-host "Converting: AzureAD Guids"
 	#Filter out Objects
-	$ADsearch = $AdUsers | Where-Object {$_ -ne 'All' -and $_ -ne 'GuestsOrExternalUsers' -and $_ -ne 'None'}
 	$cajson =  $CAExport | ConvertTo-Json -Depth 4
+	$ADsearch = $AdUsers | Where-Object {$_ -ne 'All' -and $_ -ne 'GuestsOrExternalUsers' -and $_ -ne 'None'}	
 	$AdNames =@{}
-	Get-MgDirectoryObjectById -ids $ADsearch |ForEach-Object{ 
+	Get-MgDirectoryObjectById -ids $ADsearch | ForEach-Object{ 
 		$obj = $_.Id
-		#$disp = $_.DisplayName
-		$disp = $_.AdditionalProperties.userPrincipalName
-		$AdNames.$obj=$disp
+		#$disp = $_.displayName
+		$disp = $_.AdditionalProperties.displayName
+		$AdNames.$obj = $disp
 		$cajson = $cajson -replace "$obj", "$disp"
 	}
 	$CAExport = $cajson |ConvertFrom-Json
