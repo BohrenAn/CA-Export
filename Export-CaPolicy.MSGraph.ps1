@@ -97,7 +97,6 @@ if($PolicyID)
 else
 {
 	$CAPolicy = Get-MgIdentityConditionalAccessPolicy -all
-
 }
 
 #Tenant Informations
@@ -123,9 +122,6 @@ foreach( $Policy in $CAPolicy)
 	$ExcludeUG = $Policy.Conditions.Users.ExcludeUsers
 	$ExcludeUG += $Policy.Conditions.Users.ExcludeGroups
 	$ExcludeUG += $Policy.Conditions.Users.ExcludeRoles
-
-	#Debug
-	Write-Host "DEBUG ExcludeUG: $ExcludeUG" -ForegroundColor Yellow
 	
 	$Apps += $Policy.Conditions.Applications.IncludeApplications
 	$Apps += $Policy.Conditions.Applications.ExcludeApplications
@@ -356,7 +352,7 @@ $html = "<html><head><base href='https://docs.microsoft.com/' target='_blank'>
 	tbody tr:nth-of-type(even) {
 		background-color: #f3f3f3;
 	}
-	tbody tr:nth-of-type(4), tbody tr:nth-of-type(7), body tr:nth-of-type(12), tbody tr:nth-of-type(23), tbody tr:nth-of-type(28){
+	tbody tr:nth-of-type(5), tbody tr:nth-of-type(8), body tr:nth-of-type(13), tbody tr:nth-of-type(24), tbody tr:nth-of-type(29){
 		background-color: #36c;
 		text-aling:left !important
 	}
