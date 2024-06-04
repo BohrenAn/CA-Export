@@ -19,7 +19,7 @@ To run the Script use this Command
 
 ## History
 13.02.2023 Fixed:
-- Test Module and Connect-MgGrap
+- Test Module and Connect-MgGraph
 - Addet Session Controls
 - Output is now devided into Conditions, SessionControls, GrantControls
 - Code Cleanup and changed from Spaces to Tabs
