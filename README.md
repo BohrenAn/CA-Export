@@ -1,7 +1,7 @@
 # CA-Export
 PowerShell Script to help Export your CA policys as a html format. 
 
-If not already connected the Script will connect MgGraph to Microsoft.Graph and use the Scopes documented below
+If not already connected the Script will connect Microsoft.Graph and use the Scopes documented below
 
 ```posh
 Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
