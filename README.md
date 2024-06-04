@@ -36,6 +36,10 @@ To run the Script use this Command
 03.05.2023 Fixed:
 - Changed UPN to Displaynames for AD Objects because Groups don't have a UPN
 
+04.06.2024 Fixed:
+- Remove Select-MgProfile (older Microsoft.Graph Module)
+- Fixed GrantControls
+
 ## License
 
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]

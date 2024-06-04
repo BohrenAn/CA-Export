@@ -44,15 +44,16 @@
 
 	Andres Bohren
 	@andresbohren
-	04.06.2023 Fixed:
-	- Remove Select-MgProfile (older Microsoft.Graph Module)
-	- Fixed GrantControls
-	
+	03.05.2023 Fixed:
+	- Changed UPN to Displaynames for AD Objects because Groups don't have a UPN
 
 	Andres Bohren
 	@andresbohren
-	03.05.2023 Fixed:
-	- Changed UPN to Displaynames for AD Objects because Groups don't have a UPN
+	04.06.2024 Fixed:
+	- Remove Select-MgProfile (older Microsoft.Graph Module)
+	- Fixed GrantControls
+
+
 
 #>
 [CmdletBinding()]
@@ -84,14 +85,12 @@ $MgContext = Get-MgContext
 If ($Null -eq $MgContext)
 {
 	Write-host "Connect-MgGraph"
-	Select-MgProfile -Name "beta"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
+	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
 } else {
 	Write-host "Disconnect-MgGraph"
 	Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 	Write-host "Connect-MgGraph"
-	Select-MgProfile -Name "beta"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
+	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
 }
   
 #Collect CA Policy
