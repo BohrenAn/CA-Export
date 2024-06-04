@@ -1,11 +1,11 @@
 # CA-Export
-Tool to help save your CA policys as a html format. 
+PowerShell Script to help save your CA policys as a html format. 
 
 If not already connected the Script will connect MgGraph to the Beta Endpoint and use the Scopes documented below
 
 ```posh
-Select-MgProfile -Name "beta"
 Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
+Select-MgProfile -Name "beta"
 ```
 
 To run the Script use this Command
@@ -18,6 +18,25 @@ To run the Script use this Command
 ![Export-CaPolicy_02](Export-CaPolicy_02.jpg)
 ![Export-CaPolicy_03](Export-CaPolicy_03.jpg)
 
+## History
+13.02.2023 Fixed:
+- Test Module and Connect-MgGrap
+- Addet Session Controls
+- Output is now devided into Conditions, SessionControls, GrantControls
+- Code Cleanup and changed from Spaces to Tabs
+
+15.02.2023 Fixed:
+- Output is now devided into Users, Cloud Apps or Actions, Conditions, GrantControls, SessionControls (like in CA Portal)
+- Minor rearrangement of Rows
+
+18.04.2023 Fixed:
+- Fixed Script Parameter "PolicyID" -ConditionalAccessPolicyId
+- Addet PolicyID to HTML Output
+	
+03.05.2023 Fixed:
+- Changed UPN to Displaynames for AD Objects because Groups don't have a UPN
+
+## License
 
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 

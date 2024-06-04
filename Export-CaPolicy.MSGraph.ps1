@@ -49,6 +49,11 @@
 	- Fixed GrantControls
 	
 
+	Andres Bohren
+	@andresbohren
+	03.05.2023 Fixed:
+	- Changed UPN to Displaynames for AD Objects because Groups don't have a UPN
+
 #>
 [CmdletBinding()]
 param (
@@ -79,12 +84,14 @@ $MgContext = Get-MgContext
 If ($Null -eq $MgContext)
 {
 	Write-host "Connect-MgGraph"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
+	Select-MgProfile -Name "beta"
+	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
 } else {
 	Write-host "Disconnect-MgGraph"
 	Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 	Write-host "Connect-MgGraph"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
+	Select-MgProfile -Name "beta"
+	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
 }
   
 #Collect CA Policy
@@ -96,7 +103,6 @@ if($PolicyID)
 else
 {
 	$CAPolicy = Get-MgIdentityConditionalAccessPolicy -all
-
 }
 
 #Tenant Informations
@@ -115,19 +121,19 @@ foreach( $Policy in $CAPolicy)
 	### Conditions ###
 	$IncludeUG = $null
 	$IncludeUG = $Policy.Conditions.Users.IncludeUsers
-	$IncludeUG +=$Policy.Conditions.Users.IncludeGroups
-	$IncludeUG +=$Policy.Conditions.Users.IncludeRoles
+	$IncludeUG += $Policy.Conditions.Users.IncludeGroups
+	$IncludeUG += $Policy.Conditions.Users.IncludeRoles
 
 	$ExcludeUG = $null
 	$ExcludeUG = $Policy.Conditions.Users.ExcludeUsers
-	$ExcludeUG +=$Policy.Conditions.Users.ExcludeGroups
-	$ExcludeUG +=$Policy.Conditions.Users.ExcludeRoles
+	$ExcludeUG += $Policy.Conditions.Users.ExcludeGroups
+	$ExcludeUG += $Policy.Conditions.Users.ExcludeRoles
 	
 	$Apps += $Policy.Conditions.Applications.IncludeApplications
 	$Apps += $Policy.Conditions.Applications.ExcludeApplications
 	
-	$AdUsers +=$ExcludeUG
-	$AdUsers +=$IncludeUG
+	$AdUsers += $ExcludeUG
+	$AdUsers += $IncludeUG
 	
 	$InclLocation = $Null
 	$ExclLocation = $Null 
@@ -152,7 +158,7 @@ foreach( $Policy in $CAPolicy)
 		PolicyID = $Policy.ID
 		Status = $Policy.State;
 		UsersInclude = ($IncludeUG -join ", `r`n");
-		UsersExclude = ($ExcludeUG -join ", `r`n");
+		UsersExclude = ($ExcludeUG -join ", `r`n");		
 		### Cloud apps or actions ###
 		'Cloud apps or actions' ="";
 		ApplicationsIncluded = ($Policy.Conditions.Applications.IncludeApplications -join ", `r`n");
@@ -205,14 +211,14 @@ foreach( $Policy in $CAPolicy)
 	#Swith user/group Guid to display names
 	Write-host "Converting: EntraID Guids"
 	#Filter out Objects
-	$ADsearch = $AdUsers | Where-Object {$_ -ne 'All' -and $_ -ne 'GuestsOrExternalUsers' -and $_ -ne 'None'}
 	$cajson =  $CAExport | ConvertTo-Json -Depth 4
+	$ADsearch = $AdUsers | Where-Object {$_ -ne 'All' -and $_ -ne 'GuestsOrExternalUsers' -and $_ -ne 'None'}	
 	$AdNames =@{}
-	Get-MgDirectoryObjectById -ids $ADsearch |ForEach-Object{ 
+	Get-MgDirectoryObjectById -ids $ADsearch | ForEach-Object{ 
 		$obj = $_.Id
-		#$disp = $_.DisplayName
-		$disp = $_.AdditionalProperties.userPrincipalName
-		$AdNames.$obj=$disp
+		#$disp = $_.displayName
+		$disp = $_.AdditionalProperties.displayName
+		$AdNames.$obj = $disp
 		$cajson = $cajson -replace "$obj", "$disp"
 	}
 	$CAExport = $cajson |ConvertFrom-Json
@@ -352,7 +358,7 @@ $html = "<html><head><base href='https://docs.microsoft.com/' target='_blank'>
 	tbody tr:nth-of-type(even) {
 		background-color: #f3f3f3;
 	}
-	tbody tr:nth-of-type(4), tbody tr:nth-of-type(7), body tr:nth-of-type(12), tbody tr:nth-of-type(23), tbody tr:nth-of-type(28){
+	tbody tr:nth-of-type(5), tbody tr:nth-of-type(8), body tr:nth-of-type(13), tbody tr:nth-of-type(24), tbody tr:nth-of-type(29){
 		background-color: #36c;
 		text-aling:left !important
 	}
