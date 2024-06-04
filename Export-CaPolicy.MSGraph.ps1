@@ -41,6 +41,12 @@
 	18.04.2023 Fixed:
 	- Fixed Script Parameter "PolicyID" -ConditionalAccessPolicyId
 	- Addet PolicyID to HTML Output
+
+	Andres Bohren
+	@andresbohren
+	04.06.2023 Fixed:
+	- Remove Select-MgProfile (older Microsoft.Graph Module)
+	- Fixed GrantControls
 	
 
 #>
@@ -73,14 +79,12 @@ $MgContext = Get-MgContext
 If ($Null -eq $MgContext)
 {
 	Write-host "Connect-MgGraph"
-	Select-MgProfile -Name "beta"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
+	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
 } else {
 	Write-host "Disconnect-MgGraph"
 	Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 	Write-host "Connect-MgGraph"
-	Select-MgProfile -Name "beta"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All'
+	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
 }
   
 #Collect CA Policy
@@ -170,7 +174,7 @@ foreach( $Policy in $CAPolicy)
 		
 		### Grant Controls ###
 		GrantControls = "";
-		BuiltInControls = $($Policy.GrantControls.BuiltInControls)
+		BuiltInControls = $($Policy.GrantControls.BuiltInControls -join " ")
 		TermsOfUse = $($Policy.GrantControls.TermsOfUse)
 		CustomControls =  $($Policy.GrantControls.CustomAuthenticationFactors)
 		GrantOperator = $Policy.GrantControls.Operator
@@ -199,7 +203,7 @@ foreach( $Policy in $CAPolicy)
 }
 
 	#Swith user/group Guid to display names
-	Write-host "Converting: AzureAD Guids"
+	Write-host "Converting: EntraID Guids"
 	#Filter out Objects
 	$ADsearch = $AdUsers | Where-Object {$_ -ne 'All' -and $_ -ne 'GuestsOrExternalUsers' -and $_ -ne 'None'}
 	$cajson =  $CAExport | ConvertTo-Json -Depth 4
