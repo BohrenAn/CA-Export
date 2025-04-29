@@ -53,7 +53,10 @@
 	- Remove Select-MgProfile (older Microsoft.Graph Module)
 	- Fixed GrantControls
 
-
+	Andres Bohren
+	@andresbohren
+	29.04.2025 Improved:
+	- Added Network Section to HTML Output to match the Conditional Access GUI in Entra Portal
 
 #>
 [CmdletBinding()]
@@ -159,19 +162,24 @@ foreach( $Policy in $CAPolicy)
 		UsersInclude = ($IncludeUG -join ", `r`n");
 		UsersExclude = ($ExcludeUG -join ", `r`n");		
 		### Cloud apps or actions ###
-		'Cloud apps or actions' ="";
+		#'Cloud apps or actions' ="";
+		'TargetResources' ="";
 		ApplicationsIncluded = ($Policy.Conditions.Applications.IncludeApplications -join ", `r`n");
 		ApplicationsExcluded = ($Policy.Conditions.Applications.ExcludeApplications -join ", `r`n");
 		userActions = ($Policy.Conditions.Applications.IncludeUserActions -join ", `r`n");
 		AuthContext = ($Policy.Conditions.Applications.IncludeAuthenticationContextClassReferences -join ", `r`n");
+		
+		### Network ###
+		'Network' ="";
+		LocationsIncluded = ($InclLocation -join ", `r`n");
+		LocationsExcluded = ($ExclLocation -join ", `r`n");
+
 		### Conditions ###
 		Conditions = "";
 		UserRisk = ($Policy.Conditions.UserRiskLevels -join ", `r`n");
 		SignInRisk = ($Policy.Conditions.SignInRiskLevels -join ", `r`n");		
 		PlatformsInclude =  ($InclPlat -join ", `r`n");
 		PlatformsExclude =  ($ExclPlat -join ", `r`n");
-		LocationsIncluded = ($InclLocation -join ", `r`n");
-		LocationsExcluded = ($ExclLocation -join ", `r`n");
 		ClientApps = ($Policy.Conditions.ClientAppTypes -join ", `r`n");
 		DevicesIncluded = ($InclDev -join ", `r`n");
 		DevicesExcluded = ($ExclDev -join ", `r`n");
@@ -279,9 +287,19 @@ $Rows| ForEach-Object{
 }
 
 #Column Sorting Order
+<#
 $sort = "Name","PolicyID","Status","Users","UsersInclude","UsersExclude","Cloud apps or actions","ApplicationsIncluded","ApplicationsExcluded",`
 		"userActions","AuthContext","Conditions","UserRisk","SignInRisk","PlatformsInclude","PlatformsExclude","LocationsIncluded",`
 		"LocationsExcluded","ClientApps","Devices","DevicesIncluded","DevicesExcluded","DeviceFilters",`
+		"GrantControls", "BuiltInControls", "TermsOfUse", "CustomControls", "GrantOperator",`
+		"SessionControls","SessionControlsAdditionalProperties","ApplicationEnforcedRestrictionsIsEnabled","ApplicationEnforcedRestrictionsAdditionalProperties",`
+		"CloudAppSecurityType","CloudAppSecurityIsEnabled","CloudAppSecurityAdditionalProperties","DisableResilienceDefaults","PersistentBrowserIsEnabled",`
+		"PersistentBrowserMode","PersistentBrowserAdditionalProperties","SignInFrequencyAuthenticationType","SignInFrequencyInterval","SignInFrequencyIsEnabled",`
+		"SignInFrequencyType","SignInFrequencyValue","SignInFrequencyAdditionalProperties"
+#>
+$sort = "Name","PolicyID","Status","Users","UsersInclude","UsersExclude","TargetResources","ApplicationsIncluded","ApplicationsExcluded",`
+		"userActions","AuthContext","Network","LocationsIncluded","LocationsExcluded", "Conditions","UserRisk","SignInRisk","PlatformsInclude",`
+		"PlatformsExclude",	"ClientApps","Devices","DevicesIncluded","DevicesExcluded","DeviceFilters",`
 		"GrantControls", "BuiltInControls", "TermsOfUse", "CustomControls", "GrantOperator",`
 		"SessionControls","SessionControlsAdditionalProperties","ApplicationEnforcedRestrictionsIsEnabled","ApplicationEnforcedRestrictionsAdditionalProperties",`
 		"CloudAppSecurityType","CloudAppSecurityIsEnabled","CloudAppSecurityAdditionalProperties","DisableResilienceDefaults","PersistentBrowserIsEnabled",`
@@ -357,7 +375,7 @@ $html = "<html><head><base href='https://docs.microsoft.com/' target='_blank'>
 	tbody tr:nth-of-type(even) {
 		background-color: #f3f3f3;
 	}
-	tbody tr:nth-of-type(5), tbody tr:nth-of-type(8), body tr:nth-of-type(13), tbody tr:nth-of-type(24), tbody tr:nth-of-type(29){
+	tbody tr:nth-of-type(5), tbody tr:nth-of-type(8), body tr:nth-of-type(13),tbody tr:nth-of-type(16), tbody tr:nth-of-type(25), tbody tr:nth-of-type(30){
 		background-color: #36c;
 		text-aling:left !important
 	}
