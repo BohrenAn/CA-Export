@@ -1,13 +1,12 @@
 # CA-Export
 
-PowerShell Script to help Export your CA policys as a html format. 
+PowerShell Script to help Export your CA policys as a html format.
 
 The Script requires the following Permissions
 
 - Policy.Read.All
 - Directory.Read.All
 - Application.Read.All
-
 
 To run the Script use this Command
 
@@ -37,7 +36,7 @@ To run the Script use this Command
 
 - Fixed Script Parameter "PolicyID" -ConditionalAccessPolicyId
 - Addet PolicyID to HTML Output
-	
+
 03.05.2023 Fixed:
 
 - Changed UPN to Displaynames for AD Objects because Groups don't have a UPN

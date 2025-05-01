@@ -63,6 +63,9 @@
 param (
 	[Parameter()]
 	[String]
+	$AppID,
+	[Parameter()]
+	[String]
 	$TenantID,
 	# Parameter help description
 	[Parameter()]
@@ -87,13 +90,30 @@ If ($Null -eq $GraphModule)
 $MgContext = Get-MgContext
 If ($Null -eq $MgContext)
 {
-	Write-host "Connect-MgGraph"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
+	#Disconnect-MgGraph
+	Write-host "Disconnect-MgGraph"
+	Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
+
+	If ($AppID -ne "" -and $TenantID -ne "") 
+	{
+		Write-host "Connect-MgGraph with AppID"
+		Connect-MgGraph -ClientId $AppID -TenantId $TenantID -NoWelcome
+	} else {
+		Write-host "Connect-MgGraph"
+		Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
+	}
+
 } else {
 	Write-host "Disconnect-MgGraph"
 	Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
-	Write-host "Connect-MgGraph"
-	Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
+	If ($AppID -ne "" -and $TenantID -ne "") 
+	{
+		Write-host "Connect-MgGraph with AppID"
+		Connect-MgGraph -ClientId $AppID -TenantId $TenantID -NoWelcome
+	} else {
+		Write-host "Connect-MgGraph"
+		Connect-MgGraph -Scopes 'Policy.Read.All', 'Directory.Read.All','Application.Read.All' -NoWelcome
+	}
 }
   
 #Collect CA Policy
@@ -162,7 +182,6 @@ foreach( $Policy in $CAPolicy)
 		UsersInclude = ($IncludeUG -join ", `r`n");
 		UsersExclude = ($ExcludeUG -join ", `r`n");		
 		### Cloud apps or actions ###
-		#'Cloud apps or actions' ="";
 		'TargetResources' ="";
 		ApplicationsIncluded = ($Policy.Conditions.Applications.IncludeApplications -join ", `r`n");
 		ApplicationsExcluded = ($Policy.Conditions.Applications.ExcludeApplications -join ", `r`n");
@@ -210,8 +229,6 @@ foreach( $Policy in $CAPolicy)
 		SignInFrequencyType = $Policy.SessionControls.SignInFrequency.Type
 		SignInFrequencyValue = $Policy.SessionControls.SignInFrequency.Value
 		SignInFrequencyAdditionalProperties = $Policy.SessionControls.SignInFrequency.AdditionalProperties
-
-
 	}
 }
 
