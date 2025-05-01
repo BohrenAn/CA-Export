@@ -2,6 +2,8 @@
 
 PowerShell Script to help Export your CA policys as a html format.
 
+It's a Fork of [https://github.com/dougsbaker/CA-Export](https://github.com/dougsbaker/CA-Export) and has it's own flavor.
+
 The Script requires the following Permissions
 
 - Policy.Read.All
@@ -10,17 +12,18 @@ The Script requires the following Permissions
 
 To run the Script use this Command
 
-```posh
+```pwsh
 #Run interactive
-.\Export-CaPolicy.MSGraph.ps1
+.\Export-CaPolicy.ps1
 
 #Entra App with delegated Permissions
-.\Export-CaPolicy.MSGraph.ps1 -AppID "c5f2385d-5653-4332-85f4-8f605497abf3" -TenantID "icewolfch.onmicrosoft.com"
+.\Export-CaPolicy.ps1 -AppID "c5f2385d-5653-4332-85f4-8f605497abf3" -TenantID "icewolfch.onmicrosoft.com"
 ```
 
 ![Export-CaPolicy_01](Export-CaPolicy_01.jpg)
 ![Export-CaPolicy_02](Export-CaPolicy_02.jpg)
 ![Export-CaPolicy_03](Export-CaPolicy_03.jpg)
+![Export-CaPolicy_04](Export-CaPolicy_04.jpg)
 
 ## History
 
