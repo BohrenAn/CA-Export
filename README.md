@@ -15,9 +15,6 @@ To run the Script use this Command
 ```pwsh
 #Run interactive
 .\Export-CaPolicy.ps1
-
-#Entra App with delegated Permissions
-.\Export-CaPolicy.ps1 -AppID "c5f2385d-5653-4332-85f4-8f605497abf3" -TenantID "icewolfch.onmicrosoft.com"
 ```
 
 ![Export-CaPolicy_01](Export-CaPolicy_01.jpg)
