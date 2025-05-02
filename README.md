@@ -4,7 +4,7 @@ PowerShell Script to help Export your CA policys as a html format.
 
 It's a Fork of [https://github.com/dougsbaker/CA-Export](https://github.com/dougsbaker/CA-Export) and has it's own flavor.
 
-The Script requires the following Permissions
+The Script requires the [Microsoft.Graph](https://www.powershellgallery.com/packages/Microsoft.Graph) PowerShell Modules and the following Permissions
 
 - Policy.Read.All
 - Directory.Read.All
